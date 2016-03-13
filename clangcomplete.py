@@ -169,7 +169,8 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		if self.completions:
 			doc = self._get_doc()
 			line, column = self._get_pos(self._get_buffer(context))
-			if doc == self.doc and line == self.line and token.startswith(self.token):
+			if doc == self.doc and line == self.line and \
+			   len(token) > 0 and token.startswith(self.token):
 				return self.completions
 			self.doc = doc
 			self.line = line
