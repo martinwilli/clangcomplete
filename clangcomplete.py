@@ -13,7 +13,7 @@
 # for more details.
 
 import os, subprocess, shlex
-from clang.cindex import TranslationUnit
+from clang.cindex import TranslationUnit, Index
 from gi.repository import GObject, Gtk, Gedit, GtkSource
 
 class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
@@ -22,6 +22,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 	def __init__(self, window):
 		GObject.Object.__init__(self)
 		self.window = window
+		self.index = Index.create()
 		self.completions = None
 		self.line = 0
 		self.token = None
@@ -126,6 +127,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		return False
 
 	def _get_completions(self, context, token):
+		PRECOMPILED_PREAMBLE = 4
 		if not self._can_complete(context):
 			return []
 		buf = self._get_buffer(context)
@@ -138,7 +140,9 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		args = self._get_completion_args(context)
 		src = buf.get_text(buf.get_start_iter(), buf.get_end_iter(), True)
 		files = [(path, src)]
-		tu = TranslationUnit.from_source(path, args, unsaved_files=files)
+		tu = TranslationUnit.from_source(path, args, unsaved_files=files,
+										 options=PRECOMPILED_PREAMBLE,
+										 index=self.index)
 		cr = tu.codeComplete(path, line, column, unsaved_files=files,
 							 include_macros=True, include_code_patterns=True)
 		os.chdir(cwd);
