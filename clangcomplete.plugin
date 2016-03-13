@@ -1,0 +1,8 @@
+[Plugin]
+Loader=python3
+Module=clangcomplete
+IAge=3
+Name=clang autocompletion
+Description=Add C autocompletion using clang
+Authors=Martin Willi <martin@strongswan.org>
+Copyright=Copyright (c) 2016 Martin Willi
