@@ -184,14 +184,14 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 
 	def do_populate(self, context):
 		token = self._get_token(context)
+		proposals = []
 		if token != None:
-			proposals = []
 			completions = self._get_cached_completions(context, token)
 			for (trigger, hint, contents) in completions:
 				if len(token) == 0 or trigger.startswith(token):
 					item = GtkSource.CompletionItem.new(hint, contents, None, None)
 					proposals.append(item)
-			context.add_proposals(self, proposals, True)
+		context.add_proposals(self, proposals, True)
 
 	def do_get_activation(self):
 		return GtkSource.CompletionActivation.INTERACTIVE # USER_REQUESTED
