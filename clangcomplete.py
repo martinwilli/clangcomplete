@@ -160,7 +160,8 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 					hint += ' '
 				else:
 					contents += s
-			completions.append((trigger, hint, contents))
+			if len(trigger) and len(hint):
+				completions.append((trigger, hint, contents))
 		return completions
 
 	def do_get_name(self):
