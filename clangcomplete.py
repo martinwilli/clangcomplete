@@ -145,7 +145,14 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 										 index=self.index)
 		cr = tu.codeComplete(path, line, column, unsaved_files=files,
 							 include_macros=True, include_code_patterns=True)
-		os.chdir(cwd);
+		os.chdir(cwd)
+
+		for d in cr.diagnostics:
+			if d.severity >= 3:
+				l = d.location
+				print("{}:{}:{}: {}".format(l.file, l.line, l.column, d.spelling))
+			if d.location.file == None:
+				break
 
 		completions = []
 		for result in cr.results:
