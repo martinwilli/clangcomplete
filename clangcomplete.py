@@ -240,7 +240,8 @@ class ClangCompletion(GObject.Object, Gedit.WindowActivatable):
 				self.providers[view] = provider
 		for view, provider in self.providers.items():
 			if view not in self.window.get_views():
-				view.get_completion().remove_provider(provider)
+				if provider in view.get_completion().get_providers():
+					view.get_completion().remove_provider(provider)
 				del self.providers[view]
 				break
 
