@@ -27,6 +27,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		self.line = 0
 		self.token = None
 		self.doc = None
+		self.resource_dir = None
 
 	def _get_buffer(self, context):
 		return context.get_iter()[1].get_buffer()
@@ -92,6 +93,26 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		if docdir:
 			args.append("-I{}".format(docdir))
 
+	def _get_clang_resource_dir(self):
+		pipe = subprocess.PIPE
+		clang = subprocess.Popen(['clang', '-###', '-E', '-'],
+								stdout=pipe, stdin=pipe, stderr=pipe)
+		out = clang.communicate(input=''.encode('utf-8'))[1].decode('utf-8')
+		for line in out.split('\n'):
+			if len(line) != 0:
+				match = False
+				for arg in shlex.split(line):
+					if match:
+						self.resource_dir = "-I{}/include".format(arg)
+						return True
+					if arg == '-resource-dir':
+						match = True
+		return False
+
+	def _add_clang_resource_dir(self, args):
+		if self.resource_dir or self._get_clang_resource_dir():
+			args.append(self.resource_dir)
+
 	def _add_make_cflags(self, args):
 		makefile = self._find_makefile()
 		if makefile:
@@ -109,6 +130,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 
 	def _get_completion_args(self, context):
 		args = []
+		self._add_clang_resource_dir(args)
 		self._add_cwd_include(args)
 		self._add_make_cflags(args)
 		return args
