@@ -128,11 +128,22 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 					for arg in shlex.split(line[line.index('=') + 1:]):
 						args.append(arg)
 
+	def _add_make_include_dirs(self, args):
+		docdir = self._get_docdir()
+		while docdir:
+			makefile = os.path.join(docdir, 'Makefile')
+			if os.path.isfile(makefile):
+				args.append("-I{}".format(os.path.dirname(makefile)))
+			if os.path.dirname(docdir) == docdir:
+				break
+			docdir = os.path.dirname(docdir)
+
 	def _get_completion_args(self, context):
 		args = []
 		self._add_clang_resource_dir(args)
 		self._add_cwd_include(args)
 		self._add_make_cflags(args)
+		self._add_make_include_dirs(args)
 		return args
 
 	def _get_completion_path(self):
