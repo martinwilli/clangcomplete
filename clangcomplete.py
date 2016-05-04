@@ -28,6 +28,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		self.token = None
 		self.doc = None
 		self.resource_dir = None
+		self.max_proposals = 16
 
 	def _get_buffer(self, context):
 		return context.get_iter()[1].get_buffer()
@@ -232,6 +233,8 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 				if len(token) == 0 or trigger.startswith(token):
 					item = GtkSource.CompletionItem.new(hint, contents, None, None)
 					proposals.append(item)
+					if len(proposals) > self.max_proposals:
+						break
 		context.add_proposals(self, proposals, True)
 
 	def do_get_activation(self):
