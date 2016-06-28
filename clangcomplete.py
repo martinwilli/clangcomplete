@@ -194,6 +194,8 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 			contents = ''
 			for chunk in result.string:
 				s = chunk.spelling
+				if not s:
+					continue
 				if chunk.isKindTypedText():
 					trigger = s
 				hint += s
