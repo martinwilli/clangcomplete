@@ -92,7 +92,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 	def _add_cwd_include(self, args):
 		docdir = self._get_docdir()
 		if docdir:
-			args.append("-I{}".format(docdir))
+			args.append("-I{}".format(docdir).encode('utf-8'))
 
 	def _get_clang_resource_dir(self):
 		pipe = subprocess.PIPE
@@ -112,7 +112,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 
 	def _add_clang_resource_dir(self, args):
 		if self.resource_dir or self._get_clang_resource_dir():
-			args.append(self.resource_dir)
+			args.append(self.resource_dir.encode('utf-8'))
 
 	def _add_make_cflags(self, args):
 		makefile = self._find_makefile()
@@ -127,14 +127,14 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 			for line in out.split('\n'):
 				if len(line) != 0:
 					for arg in shlex.split(line[line.index('=') + 1:]):
-						args.append(arg)
+						args.append(arg.encode('utf-8'))
 
 	def _add_make_include_dirs(self, args):
 		docdir = self._get_docdir()
 		while docdir:
 			makefile = os.path.join(docdir, 'Makefile')
 			if os.path.isfile(makefile):
-				args.append("-I{}".format(os.path.dirname(makefile)))
+				args.append("-I{}".format(os.path.dirname(makefile)).encode('utf-8'))
 			if os.path.dirname(docdir) == docdir:
 				break
 			docdir = os.path.dirname(docdir)
@@ -150,7 +150,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 	def _get_completion_path(self):
 		path = self._get_doc()
 		if (path):
-			return os.path.relpath(path, os.getcwd())
+			return os.path.relpath(path, os.getcwd()).encode('utf-8')
 		return None
 
 	def _can_complete(self, context):
@@ -173,7 +173,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		path = self._get_completion_path()
 		args = self._get_completion_args(context)
 		src = buf.get_text(buf.get_start_iter(), buf.get_end_iter(), True)
-		files = [(path, src)]
+		files = [(path, src.encode('utf-8'))]
 		tu = TranslationUnit.from_source(path, args, unsaved_files=files,
 										 options=PRECOMPILED_PREAMBLE,
 										 index=self.index)
@@ -196,6 +196,8 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 				s = chunk.spelling
 				if not s:
 					continue
+				if not isinstance(s, str):
+					s = s.decode('utf-8')
 				if chunk.isKindTypedText():
 					trigger = s
 				hint += s
