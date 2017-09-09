@@ -182,14 +182,17 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 										 options=parseopts,
 										 index=self.index)
 		cr = tu.codeComplete(path, line, column, unsaved_files=files,
-							 include_macros=True, include_code_patterns=True)
+							 include_macros=True, include_code_patterns=True,
+							 include_brief_comments=True)
 		os.chdir(cwd)
 
 		completions = []
 		for result in cr.results:
 			hint = ''
 			contents = ''
-			for chunk in result.string:
+			string = result.string
+			doc = string.briefComment
+			for chunk in string:
 				s = chunk.spelling
 				if not s:
 					continue
@@ -203,7 +206,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 				else:
 					contents += s
 			if len(trigger) and len(hint):
-				completions.append((trigger, hint, contents))
+				completions.append((trigger, hint, contents, doc))
 		return completions
 
 	def do_get_name(self):
@@ -230,9 +233,9 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		proposals = []
 		if token != None:
 			completions = self._get_cached_completions(context, token)
-			for (trigger, hint, contents) in completions:
+			for (trigger, hint, contents, doc) in completions:
 				if len(token) == 0 or trigger.startswith(token):
-					item = GtkSource.CompletionItem.new(hint, contents, None, None)
+					item = GtkSource.CompletionItem.new(hint, contents, None, doc)
 					proposals.append(item)
 					if len(proposals) > self.max_proposals:
 						break
