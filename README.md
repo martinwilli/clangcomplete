@@ -6,15 +6,13 @@ It currently supports the C language only.
 ## Installation ##
 
 The plugin requires libclang and its Python bindings for the Python version
-gedit uses. Under Ubuntu 15.10, this is Python 3, and it can be installed
-using:
-
-		sudo apt-get install libclang1
-		sudo apt-get install python3-pip
-		sudo pip3 install libclang-py3
+gedit uses, usually Python 3. LLVM 5 is known to work, and it finally comes
+with clang bindings for Python 3. _https://apt.llvm.org_ provides Debian/Ubuntu
+packages, but unfortunately _python-clang-5.0_ is for Python 2; one may move
+that packages files to a Python 3 site, though.
 
 Please note that your Python libclang binding might require a specific
-libclang-3.x.so.y library name it tries to dlopen(). Just create an appropriate
+libclang-v.x.so.y library name it tries to dlopen(). Just create an appropriate
 symlink (in Ubuntu/x64 under /usr/lib/x86_64-linux-gnu/) until we have some
 support to find installed libclang libraries.
 
