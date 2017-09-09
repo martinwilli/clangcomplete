@@ -161,7 +161,11 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		return False
 
 	def _get_completions(self, context, token):
-		PRECOMPILED_PREAMBLE = 4
+		parseopts = TranslationUnit.PARSE_INCOMPLETE
+		parseopts += TranslationUnit.PARSE_PRECOMPILED_PREAMBLE
+		parseopts += TranslationUnit.PARSE_CACHE_COMPLETION_RESULTS
+		parseopts += TranslationUnit.PARSE_SKIP_FUNCTION_BODIES
+		parseopts += TranslationUnit.PARSE_INCLUDE_BRIEF_COMMENTS_IN_CODE_COMPLETION
 		if not self._can_complete(context):
 			return []
 		buf = self._get_buffer(context)
@@ -175,7 +179,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		src = buf.get_text(buf.get_start_iter(), buf.get_end_iter(), True)
 		files = [(path, src.encode('utf-8'))]
 		tu = TranslationUnit.from_source(path, args, unsaved_files=files,
-										 options=PRECOMPILED_PREAMBLE,
+										 options=parseopts,
 										 index=self.index)
 		cr = tu.codeComplete(path, line, column, unsaved_files=files,
 							 include_macros=True, include_code_patterns=True)
