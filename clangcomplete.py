@@ -177,7 +177,7 @@ class ClangCompletionProvider(GObject.Object, GtkSource.CompletionProvider):
 		path = self._get_completion_path()
 		args = self._get_completion_args(context)
 		src = buf.get_text(buf.get_start_iter(), buf.get_end_iter(), True)
-		files = [(path, src.encode('utf-8'))]
+		files = [(path, src)]
 		tu = TranslationUnit.from_source(path, args, unsaved_files=files,
 										 options=parseopts,
 										 index=self.index)
